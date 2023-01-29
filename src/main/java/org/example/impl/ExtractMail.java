@@ -3,6 +3,7 @@ package org.example.impl;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -47,18 +48,31 @@ public class ExtractMail implements Callable<Integer> {
             return -1;
         }
 
+        if (fileType.isEmpty()) {
+            throw new IllegalArgumentException("File type is empty");
+        }
+
+        ArrayDeque<FileType> fileTypeStack = new ArrayDeque<>(fileType);
+
+        if (fileTypeStack.getLast() != FileType.EML) {
+            throw new IllegalArgumentException("File format should end with EML");
+        }
+
+        int stackSizeBeforeProcessing = fileTypeStack.size();
+
         FileProcessor fileProcessor = new FileProcessor(
                 outputPath,
                 bufferSize,
                 maximumOutputSizeBytes
         );
 
-        System.out.println("fileType : " + fileType);
+        fileProcessor.process(
+                inputFile,
+                fileTypeStack
+        );
 
-        switch (fileType.get(0)) {
-            case ZIP -> fileProcessor.processZipFile(inputFile);
-            case EML -> fileProcessor.processEmlFile(inputFile);
-            default -> throw new IllegalArgumentException("Unsupported file type : " + fileType);
+        if (fileTypeStack.size() != stackSizeBeforeProcessing) {
+            throw new IllegalStateException("Procesing broken, path after not equal to path before. Path before " +  outputPath + " path after " + fileTypeStack);
         }
 
         return 0;

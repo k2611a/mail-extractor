@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -18,11 +18,12 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.FileType;
 
 class FileProcessor {
 
@@ -44,39 +45,72 @@ class FileProcessor {
         this.outputPath = outputPath;
     }
 
-    public void processEmlFile(File empInputFile) throws IOException, MessagingException {
+    public void process(
+            File inputFile,
+            ArrayDeque<FileType> fileTypePath
+    ) throws IOException, MessagingException {
+
+        log.debug("Starting mail extraction from : " + inputFile + " to : " + outputPath);
+        log.debug("File format is : " + fileTypePath);
+
         initialCleanup();
-        log.debug("Starting mail extraction from email : " + empInputFile + " to : " + outputPath);
-        try (InputStream inputStream = bufferedStreamFactory.readFile(empInputFile)) {
-            processEmlInputStream(
-                    empInputFile.getName(),
-                    inputStream,
-                    new ExtractionPath()
-            );
-        }
+
+        final String fileName = inputFile.getName();
+        final ExtractionPath extractionPath = new ExtractionPath();
+
+        processInputStreamBasedOnType(inputFile, fileTypePath, fileName, extractionPath);
 
         log.debug("Processing finished");
     }
 
-    public void processZipFile(File zipInputFile) throws IOException {
-        initialCleanup();
-        log.debug("Starting mail extraction from archive : " + zipInputFile + " to : " + outputPath);
-        try (InputStream inputStream = bufferedStreamFactory.readFile(zipInputFile)) {
-            processZipInputStream(
-                    zipInputFile.getName(),
+    private void processInputStreamBasedOnType(
+            File inputFile,
+            ArrayDeque<FileType> fileTypePath,
+            String fileName,
+            ExtractionPath extractionPath
+    ) throws IOException, MessagingException {
+        try (InputStream inputStream = bufferedStreamFactory.readFile(inputFile)) {
+            processInputStreamBasedOnType(
                     inputStream,
-                    new ExtractionPath()
+                    fileTypePath,
+                    fileName,
+                    extractionPath
             );
         }
-        log.debug("Processing finished");
+    }
+
+    private void processInputStreamBasedOnType(
+            InputStream inputStream,
+            ArrayDeque<FileType> fileTypePath,
+            String fileName,
+            ExtractionPath extractionPath
+    ) throws IOException, MessagingException {
+        FileType currentFileType = fileTypePath.pollFirst();
+        try {
+            switch (currentFileType) {
+                case ZIP -> processZipInputStream(fileName, inputStream, extractionPath, fileTypePath);
+                case EML -> processEmlInputStream(fileName, inputStream, extractionPath, fileTypePath);
+                default -> throw new IllegalArgumentException("Unsupported file type : " + currentFileType);
+            }
+        } finally {
+            fileTypePath.addFirst(currentFileType);
+        }
+
     }
 
     private void initialCleanup() throws IOException {
         Files.createDirectories(outputPath);
+        log.info("Created directory : " + outputPath);
         FileUtils.cleanDirectory(outputPath.toFile());
     }
 
-    private void processZipInputStream(String fileName, InputStream inputStream, ExtractionPath extractionPath) throws IOException {
+    private void processZipInputStream(
+            String fileName,
+            InputStream inputStream,
+            ExtractionPath extractionPath,
+            ArrayDeque<FileType> fileTypePath
+    ) throws IOException {
+        assert (fileTypePath.size() > 0);
         try (
                 Closeable noop = extractionPath.pushZip(fileName);
         ) {
@@ -91,14 +125,15 @@ class FileProcessor {
                     }
 
                     String zipEntryName = zipEntry.getName();
-                    if (isZipFilename(zipEntryName)) {
-                        log.debug("Processing zip file : " + zipEntryName);
-                        processZipInputStream(zipEntryName, zipInputStream, extractionPath);
-                    }
-                    if (isEmlFilename(zipEntryName)) {
-                        log.debug("Processing eml file : " + zipEntryName);
-                        processEmlInputStream(zipEntryName, zipInputStream, extractionPath);
-                    }
+
+                    processInputStreamBasedOnType(
+                            zipInputStream,
+                            fileTypePath,
+                            zipEntryName,
+                            extractionPath
+                    );
+
+
                 } catch (IOException e) {
                     log.error("Exception while reading zip file", e);
                 } catch (MessagingException e) {
@@ -109,97 +144,100 @@ class FileProcessor {
     }
 
 
-    private void processEmlInputStream(String fileName, InputStream inputStream, ExtractionPath extractionPath) throws MessagingException, IOException {
+    private void processEmlInputStream(String fileName, InputStream inputStream, ExtractionPath extractionPath, ArrayDeque<FileType> fileTypePath) throws MessagingException, IOException {
         try (
                 Closeable noop = extractionPath.pushEml(fileName);
         ) {
-            Properties props = new Properties();
-            Session mailSession = Session.getDefaultInstance(props, null);
-            MimeMessage message = new MimeMessage(
-                    mailSession,
-                    inputStream
-            );
 
-            if (message.isMimeType("multipart/*") && message.getContent() instanceof Multipart multipart) {
-                // process multipart message
-                log.debug("Multipart in mail, part count : " + multipart.getCount());
-
-                List<BodyPart> messageBodyPartsLeft = processMessageBody(extractionPath, multipart);
-
-                if (!messageBodyPartsLeft.isEmpty()) {
-                    // reconstruct the message without processed inner messages
-                    MimeMultipart multiPartLeftovers = MessageUtils.toMimeMultipart(messageBodyPartsLeft);
-                    message.setContent(multiPartLeftovers);
-                    writeOutputEml(message);
-                } else {
-                    log.debug("Message contains only nested content, skipping output");
-                }
-            } else if (message.isMimeType("text/plain") && message.getContent() instanceof String) {
-                // do nothing, text content stays as it is
-                writeOutputEml(message);
-            } else if (message.isMimeType("text/rfc822") && message.getContent() instanceof String) {
-                // go deeper into message and its attachments
-                try (InputStream nestedInputStream = message.getInputStream()) {
-                    processEmlInputStream(message.getFileName(), nestedInputStream, extractionPath);
-                }
+            if (fileTypePath.isEmpty()) {
+                // last level of extraction, write email to output
+                writeOutputEml(inputStream);
             } else {
-                log.warn("Content type unknown : " + message.getContentType());
-                writeOutputEml(message);
+                Properties props = new Properties();
+                Session mailSession = Session.getDefaultInstance(props, null);
+                MimeMessage message = new MimeMessage(
+                        mailSession,
+                        inputStream
+                );
+                processMessageBodyForAttachments(
+                        message,
+                        extractionPath,
+                        fileTypePath
+                );
             }
+
+
         }
     }
 
-    private List<BodyPart> processMessageBody(ExtractionPath extractionPath, Multipart multipart) throws MessagingException, IOException {
-        List<BodyPart> messageBodyParts = MessageUtils.toBodyParts(multipart);
-        List<BodyPart> messageBodyPartsLeft = new ArrayList<>(multipart.getCount());
-        for (BodyPart bodyPart : messageBodyParts) {
-            if (!processEmlBodyPart(bodyPart, extractionPath)) {
-                messageBodyPartsLeft.add(bodyPart);
+    private void processMessageBodyForAttachments(
+            MimeMessage message,
+            ExtractionPath extractionPath,
+            ArrayDeque<FileType> fileTypePath
+    ) throws MessagingException, IOException {
+        assert (fileTypePath.size() > 0);
+        if (message.isMimeType("multipart/*") && message.getContent() instanceof Multipart multipart) {
+            // process multipart message
+            log.debug("Multipart in mail, part count : " + multipart.getCount());
+            List<BodyPart> messageBodyParts = MessageUtils.toBodyParts(multipart);
+            FileType currentFileType = fileTypePath.pollFirst();
+
+            try {
+                switch (currentFileType) {
+                    case ZIP -> {
+                        for (BodyPart bodyPart : messageBodyParts) {
+                            if (MessageUtils.isZip(bodyPart)) {
+                                try (InputStream inputStream = bodyPart.getInputStream()) {
+                                    processZipInputStream(
+                                            bodyPart.getFileName(),
+                                            inputStream,
+                                            extractionPath,
+                                            fileTypePath
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    case EML -> {
+                        for (BodyPart bodyPart : messageBodyParts) {
+                            if (MessageUtils.isMessage(bodyPart)) {
+                                try (InputStream inputStream = bodyPart.getInputStream()) {
+                                    processZipInputStream(
+                                            bodyPart.getFileName(),
+                                            inputStream,
+                                            extractionPath,
+                                            fileTypePath
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    default -> throw new IllegalArgumentException("Unsupported file type : " + currentFileType);
+                }
+            } finally {
+                fileTypePath.addFirst(currentFileType);
             }
+
+
+        } else if (message.isMimeType("text/plain") && message.getContent() instanceof String) {
+            // do nothing, text content is not attachment
+        } else if (message.isMimeType("text/rfc822") && message.getContent() instanceof String) {
+            // email is not attachment
+        } else {
+            log.warn("Content type unknown : " + message.getContentType());
         }
-        return messageBodyPartsLeft;
+
     }
 
-    private void writeOutputEml(MimeMessage message) throws IOException, MessagingException {
+    private void writeOutputEml(InputStream inputStream) throws IOException {
         String outputFileName = outputFileNameGenerator.generateNewOutputFileName();
         File emlOutputFile = new File(outputPath.toFile(), outputFileName);
         log.info("WRITING : " + emlOutputFile.getAbsolutePath());
-        try (OutputStream emlOutputStream = bufferedStreamFactory.writeFile(emlOutputFile)) {
-            message.writeTo(emlOutputStream);
+        try (OutputStream out = bufferedStreamFactory.writeFile(emlOutputFile)) {
+            IOUtils.copy(inputStream, out);
         }
-    }
 
-    private boolean processEmlBodyPart(BodyPart bodyPart, ExtractionPath extractionPath) throws MessagingException,
-            IOException {
-        log.debug("Body part encountered, type : " + bodyPart.getContentType());
-        if (MessageUtils.isZip(bodyPart)) {
-            try (InputStream inputStream = bodyPart.getInputStream()) {
-                processZipInputStream(bodyPart.getFileName(), inputStream, extractionPath);
-            }
-            return true;
-        }
-        if (MessageUtils.isMessage(bodyPart)) {
-            try (InputStream inputStream = bodyPart.getInputStream()) {
-                processEmlInputStream(bodyPart.getFileName(), inputStream, extractionPath);
-            }
-            return true;
-        }
-        if (MessageUtils.isText(bodyPart)) {
-            if (MessageUtils.isStringBodyEmpty(bodyPart)) {
-                return true;
-            }
-            return false;
-        }
-        // we do not know the policy regarding different from zip body parts, assume they are to be saved
-        return false;
     }
 
 
-    private boolean isEmlFilename(String zipEntryName) {
-        return zipEntryName.toLowerCase().endsWith(".eml");
-    }
-
-    private boolean isZipFilename(String zipEntryName) {
-        return zipEntryName.toLowerCase().endsWith(".zip");
-    }
 }

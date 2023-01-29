@@ -137,12 +137,12 @@ public class FunctionalTests {
 
         assertTrue(
                 actualDirectory.isDirectory(),
-                "actual directory is directory"
+                "actual directory is directory : " + actualDirectory.getAbsolutePath()
         );
 
         assertTrue(
                 expectedDirectory.isDirectory(),
-                "expected directory is directory"
+                "expected directory is directory : " + expectedDirectory.getAbsolutePath()
         );
 
         File[] expectedDirectoryFiles = expectedDirectory.listFiles();

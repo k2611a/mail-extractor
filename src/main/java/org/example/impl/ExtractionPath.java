@@ -29,6 +29,10 @@ class ExtractionPath {
         return currentExtractionPath.pop();
     }
 
+    public boolean isEmpty() {
+        return currentExtractionPath.isEmpty();
+    }
+
     private String toSingleLine() {
         StringBuilder sb = new StringBuilder();
         Iterator<String> iterator = currentExtractionPath.descendingIterator();
