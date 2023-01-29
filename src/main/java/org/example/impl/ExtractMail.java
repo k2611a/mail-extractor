@@ -3,6 +3,7 @@ package org.example.impl;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.io.FileUtils;
@@ -24,8 +25,8 @@ public class ExtractMail implements Callable<Integer> {
     @CommandLine.Parameters(index = "0", description = "The file whose content to extract.")
     private File inputFile;
 
-    @CommandLine.Option(names = {"-f", "--filetype"}, description = "Type of the file to extract", required = true)
-    private FileType fileType;
+    @CommandLine.Option(names = {"-f", "--filetype"}, description = "Type of the file to extract", required = true, type = FileType.class, split = ",")
+    private List<FileType> fileType;
 
     @CommandLine.Option(names = {"-o", "--output"}, description = "Output path to extract files to", required = false)
     private Path outputPath = Paths.get("./output");
@@ -52,7 +53,9 @@ public class ExtractMail implements Callable<Integer> {
                 maximumOutputSizeBytes
         );
 
-        switch (fileType) {
+        System.out.println("fileType : " + fileType);
+
+        switch (fileType.get(0)) {
             case ZIP -> fileProcessor.processZipFile(inputFile);
             case EML -> fileProcessor.processEmlFile(inputFile);
             default -> throw new IllegalArgumentException("Unsupported file type : " + fileType);

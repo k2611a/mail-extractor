@@ -5,8 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,7 +29,7 @@ public class FunctionalTests {
 
     @Test
     public void providedExample() throws IOException {
-        runTest("provided-example", "archive.zip", FileType.ZIP, false);
+        runTest("provided-example", "archive.zip", Arrays.asList(FileType.ZIP, FileType.EML), false);
     }
 
     @Test
@@ -68,11 +72,27 @@ public class FunctionalTests {
         runTest("nested-directory", "archive.zip", FileType.ZIP, false);
     }
 
-
     private void runTest(
             String testcasePath,
             String filename,
             FileType fileType,
+            boolean expectFailure,
+            String... additonalArgs
+    ) throws IOException {
+        runTest(
+                testcasePath,
+                filename,
+                Collections.singletonList(fileType),
+                expectFailure,
+                additonalArgs
+        );
+    }
+
+
+    private void runTest(
+            String testcasePath,
+            String filename,
+            List<FileType> fileType,
             boolean expectFailure,
             String... additonalArgs
     ) throws IOException {
@@ -84,7 +104,7 @@ public class FunctionalTests {
 
         String[] args = {
                 fullFilename,
-                "-f", fileType.name(),
+                "-f", toPath(fileType),
                 "-o", outputPath
         };
         if (additonalArgs != null) {
@@ -101,6 +121,14 @@ public class FunctionalTests {
                     outputPath
             );
         }
+    }
+
+    private String toPath(List<FileType> fileType) {
+        return fileType
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(","));
+
     }
 
     private void assertEqualDirectContent(String expected, String actual) throws IOException {

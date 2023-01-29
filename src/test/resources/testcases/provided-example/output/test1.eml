@@ -1,13 +1,42 @@
 To: alx@behavox.com
 From: Alexander Alexeev <alexander.alexeev@behavox.com>
-Subject: Test 1
+Subject: Email 1
 Organization: Behavox, Ltd
-Message-ID: <70482884-cc4f-6dd2-d856-89715e9d3340@behavox.com>
-Date: Mon, 5 Jun 2017 09:31:47 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101
- Thunderbird/45.8.0
+Message-ID: <b9723701-1c4d-8e91-4dc4-a61de01017bf@behavox.com>
+Date: Thu, 23 Sep 2021 19:53:06 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------51BC2C56A49D6DACF119313B"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------51BC2C56A49D6DACF119313B
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-This is first test message!
+
+--------------51BC2C56A49D6DACF119313B
+Content-Type: application/x-zip-compressed;
+ name="archive-1.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="archive-1.zip"
+
+UEsDBBQAAAAIABm/d1BcrFyuXgIAAPUFAAAPAAAARndkICBUZXN0IDIuZW1srVRRT9swEH6P
+lP9w6tOmzakTp0mawjRY24mJDgnK2KuTXFpviV05LhR+/RyyQoXQVlVEfrAu5+++O3+fL7FE
+jTLHJoUjVjDO8pgTNqQ+iZKEkayMM1LkQTYcUMZK5n/OcMlv1cbLVf3Jda7W2S/MTQrTuyKF
+OTYGAteZqxR4tdnNdZ2pVnUKJxVuuCxQP+4Qb+GIb0Me70IvalzoBZfigRuhZAqn3b+PcG4K
+1/lJpkrfcV1gQWbYNHyB5Kw4rJen82N7Pon9qGRhQmIWhoQGSUAGmJeEJvEgTngQWbQX58fc
+YAozJT9CwGDGNQQ0oHafhsN0EAGhIaWuc92gJicLlKZNfhBVxfsDj8K7GyELddfA9zn41KMj
+uLm4icIR6Ns0Sjz6Hr5i/lv1A+pTu3zXgfly3c4tE7ro25TIs/Czs9mE/EDdPE7Lb0Nnklzi
+qronc3XYZL4oaSxfMr9f2Q7rdWXEimvTr8UGi5ElkilLhOv74x7Z+VgSD2l4OokniR8Pg+F0
+HLDpKQt6z4jnXC7WfGFRUZLrK9ex4lmKBuziXSHSVoK6uxsQEtoGoVS65sZzHUL2qfiyBYMb
+019VXMgR5EuuGzTHa1OSZCdRc9mU9qomMleFkIsU4kyYluEVIpRb2e1Qq4REq8lDSf0F6usy
+T4KgHavkNR73Old5WFe9PehtE8aiWalGdKbhxvB8Wdt4C1uKCl+BfmvfPr0NXZV/G/nZfIdJ
+dMd8A/i2lmBtEgMdpiFNWQAfKNvXe5Hn71ovHPzXejYledV6byu7rTEazJUsLFjz5Iv9RUeI
+6/wBUEsBAj8AFAAAAAgAGb93UFysXK5eAgAA9QUAAA8AJAAAAAAAAAAgAAAAAAAAAEZ3ZCAg
+VGVzdCAyLmVtbAoAIAAAAAAAAQAYAMpXBD+QAdYB6Cacz9Ww1wEPr5vP1bDXAVBLBQYAAAAA
+AQABAGEAAACLAgAAAAA=
+--------------51BC2C56A49D6DACF119313B--
