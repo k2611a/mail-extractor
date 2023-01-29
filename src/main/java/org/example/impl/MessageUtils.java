@@ -1,20 +1,16 @@
 package org.example.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.internet.MimeMultipart;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 class MessageUtils {
-
-    private static final String SPECIAL_TEST_CASE_PROVIDED = "See forwarded message inlined";
 
     private static final Logger log = LogManager.getLogger(ExtractMail.class);
 
@@ -67,25 +63,5 @@ class MessageUtils {
         return bodyPart.isMimeType("application/zip") || bodyPart.isMimeType("application/x-zip-compressed");
     }
 
-    static MimeMultipart toMimeMultipart(List<BodyPart> bodyParts) throws MessagingException {
-        MimeMultipart multipartWithoutProcessedParts = new MimeMultipart(bodyParts.toArray(new BodyPart[0]));
-        return multipartWithoutProcessedParts;
-    }
 
-    private static boolean isSpecialIgnorableMessage(String body) {
-        // test case provided ignored text message in case of forwarded included email. Will need to clarify later, if thats expected behavior
-        return body.trim().equals(SPECIAL_TEST_CASE_PROVIDED);
-    }
-
-    static boolean isStringBodyEmpty(BodyPart bodyPart) throws MessagingException, IOException {
-        String body = (String) bodyPart.getContent();
-        if (body.trim().isEmpty()) {
-            // ignore empty text parts
-            return true;
-        }
-        if (isSpecialIgnorableMessage(body)) {
-            return true;
-        }
-        return false;
-    }
 }
