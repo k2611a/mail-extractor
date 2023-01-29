@@ -6,6 +6,7 @@ import java.util.List;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.MimeMessage;
 
 class MessageUtils {
 
@@ -27,6 +28,14 @@ class MessageUtils {
 
     static boolean isText(BodyPart bodyPart) throws MessagingException {
         return bodyPart.isMimeType("text/plain");
+    }
+
+    static boolean isText(MimeMessage message) throws MessagingException {
+        return message.isMimeType("text/plain");
+    }
+
+    static boolean isMessage(MimeMessage message) throws MessagingException {
+        return message.isMimeType("text/plain");
     }
 
     static boolean isZip(BodyPart bodyPart) throws MessagingException {

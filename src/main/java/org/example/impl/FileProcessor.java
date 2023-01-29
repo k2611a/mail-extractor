@@ -219,9 +219,9 @@ class FileProcessor {
             }
 
 
-        } else if (message.isMimeType("text/plain") && message.getContent() instanceof String) {
+        } else if (MessageUtils.isText(message)) {
             // do nothing, text content is not attachment
-        } else if (message.isMimeType("text/rfc822") && message.getContent() instanceof String) {
+        } else if (MessageUtils.isMessage(message)) {
             // email is not attachment
         } else {
             log.warn("Content type unknown : " + message.getContentType());
