@@ -1,17 +1,13 @@
 package org.example;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.example.impl.ExtractMail;
 import org.junit.jupiter.api.Assertions;
@@ -183,33 +179,18 @@ public class FunctionalTests {
         );
 
 
-        // file traversal order is an implementation detail, so check expected files by hash
-
-        Map<String, File> expectedFiles = new HashMap<>();
+        Map<String, File> expectedFilesByName = new HashMap<>();
         for (File expectedFile : expectedDirectoryFiles) {
-            String fileHash = getFileHash(expectedFile);
-            if (expectedFiles.put(
-                    fileHash,
-                    expectedFile
-            ) != null) {
-                Assertions.fail("Hash collision : " + fileHash);
-            }
+            expectedFilesByName.put(expectedFile.getName(), expectedFile);
         }
 
         for (File actualFile : actualDirectoryfiles) {
-            String hash = getFileHash(actualFile);
-            if (expectedFiles.containsKey(hash)) {
-                File expectedFile = expectedFiles.get(hash);
+            if (expectedFilesByName.containsKey(actualFile.getName())) {
+                File expectedFile = expectedFilesByName.get(actualFile.getName());
                 assertThat(actualFile).hasSameTextualContentAs(expectedFile);
             } else {
                 Assertions.fail("Actual file not found in expected files : " + actualFile.getName());
             }
-        }
-    }
-
-    private String getFileHash(File expectedFile) throws IOException {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(expectedFile))) {
-            return DigestUtils.md5Hex(is);
         }
     }
 

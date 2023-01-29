@@ -26,8 +26,8 @@ public class ExtractMail implements Callable<Integer> {
     @CommandLine.Parameters(index = "0", description = "The file whose content to extract.")
     private File inputFile;
 
-    @CommandLine.Option(names = {"-f", "--filetype"}, description = "Type of the file to extract", required = true, type = FileType.class, split = ",")
-    private List<FileType> fileType;
+    @CommandLine.Option(names = {"-f", "--format"}, description = "Type of the file to extract", required = true, type = FileType.class, split = ",")
+    private List<FileType> fileFormat;
 
     @CommandLine.Option(names = {"-o", "--output"}, description = "Output path to extract files to", required = false)
     private Path outputPath = Paths.get("./output");
@@ -48,11 +48,11 @@ public class ExtractMail implements Callable<Integer> {
             return -1;
         }
 
-        if (fileType.isEmpty()) {
-            throw new IllegalArgumentException("File type is empty");
+        if (fileFormat.isEmpty()) {
+            throw new IllegalArgumentException("File format is empty");
         }
 
-        ArrayDeque<FileType> fileTypeStack = new ArrayDeque<>(fileType);
+        ArrayDeque<FileType> fileTypeStack = new ArrayDeque<>(fileFormat);
 
         if (fileTypeStack.getLast() != FileType.EML) {
             throw new IllegalArgumentException("File format should end with EML");

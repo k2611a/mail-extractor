@@ -235,6 +235,7 @@ class FileProcessor {
         log.info("WRITING : " + emlOutputFile.getAbsolutePath());
         try (OutputStream out = bufferedStreamFactory.writeFile(emlOutputFile)) {
             IOUtils.copy(inputStream, out);
+            IOUtils.closeQuietly(out);
         }
 
     }
