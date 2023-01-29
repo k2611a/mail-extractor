@@ -7,12 +7,7 @@ import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 class MessageUtils {
-
-    private static final Logger log = LogManager.getLogger(ExtractMail.class);
 
     private MessageUtils() {
     }
@@ -22,34 +17,9 @@ class MessageUtils {
         for (int i = 0; i < multipart.getCount(); i++) {
             result.add(multipart.getBodyPart(i));
         }
-        sortByExtractionPriority(result);
         return result;
     }
 
-    private static void sortByExtractionPriority(List<BodyPart> result) {
-        result.sort((o1, o2) -> {
-            try {
-                return Integer.compare(priority(o1), priority(o2));
-            } catch (MessagingException e) {
-                log.error("Exception while processing content type", e);
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    private static int priority(BodyPart bodyPart) throws MessagingException {
-        // to ensure depth first traversal of nested email/archive structure
-        if (bodyPart == null) {
-            return -1;
-        }
-        if (isZip(bodyPart)) {
-            return 1;
-        }
-        if (isMessage(bodyPart)) {
-            return 2;
-        }
-        return 1000;
-    }
 
     static boolean isMessage(BodyPart bodyPart) throws MessagingException {
         return bodyPart.isMimeType("message/rfc822");

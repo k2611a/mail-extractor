@@ -71,9 +71,7 @@ public class ExtractMail implements Callable<Integer> {
                 fileTypeStack
         );
 
-        if (fileTypeStack.size() != stackSizeBeforeProcessing) {
-            throw new IllegalStateException("Procesing broken, path after not equal to path before. Path before " +  outputPath + " path after " + fileTypeStack);
-        }
+        assert(fileTypeStack.size() == stackSizeBeforeProcessing);
 
         return 0;
     }

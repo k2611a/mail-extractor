@@ -111,6 +111,7 @@ class FileProcessor {
             ArrayDeque<FileType> fileTypePath
     ) throws IOException {
         assert (fileTypePath.size() > 0);
+        log.debug("processZipInputStream. fileTypePath : " + fileTypePath);
         try (
                 Closeable noop = extractionPath.pushZip(fileName);
         ) {
@@ -133,7 +134,6 @@ class FileProcessor {
                             extractionPath
                     );
 
-
                 } catch (IOException e) {
                     log.error("Exception while reading zip file", e);
                 } catch (MessagingException e) {
@@ -143,8 +143,8 @@ class FileProcessor {
         }
     }
 
-
     private void processEmlInputStream(String fileName, InputStream inputStream, ExtractionPath extractionPath, ArrayDeque<FileType> fileTypePath) throws MessagingException, IOException {
+        log.debug("processEmlInputStream. fileTypePath : " + fileTypePath);
         try (
                 Closeable noop = extractionPath.pushEml(fileName);
         ) {
@@ -202,7 +202,7 @@ class FileProcessor {
                         for (BodyPart bodyPart : messageBodyParts) {
                             if (MessageUtils.isMessage(bodyPart)) {
                                 try (InputStream inputStream = bodyPart.getInputStream()) {
-                                    processZipInputStream(
+                                    processEmlInputStream(
                                             bodyPart.getFileName(),
                                             inputStream,
                                             extractionPath,

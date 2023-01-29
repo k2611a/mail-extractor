@@ -1,43 +1,43 @@
-References: <70482884-cc4f-6dd2-d856-89715e9d3340@behavox.com>
-Subject: Archived: Test 1
+References: <9daf0b50-fe57-c75a-ef88-f224012e1bf5@behavox.com>
+Subject: Archived: Test 3
 To: alx@behavox.com
 From: Alexander Alexeev <alexander.alexeev@behavox.com>
 Organization: Behavox, Ltd
-X-Forwarded-Message-Id: <70482884-cc4f-6dd2-d856-89715e9d3340@behavox.com>
-Message-ID: <34ff063b-8278-6b63-ae74-4abd9616fe36@behavox.com>
-Date: Mon, 5 Jun 2017 09:52:55 +0300
+X-Forwarded-Message-Id: <9daf0b50-fe57-c75a-ef88-f224012e1bf5@behavox.com>
+Message-ID: <03f660f1-5244-4b8b-8b02-ec781b4a6bdd@behavox.com>
+Date: Mon, 5 Jun 2017 09:56:58 +0300
 User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101
  Thunderbird/45.8.0
 MIME-Version: 1.0
-In-Reply-To: <70482884-cc4f-6dd2-d856-89715e9d3340@behavox.com>
+In-Reply-To: <9daf0b50-fe57-c75a-ef88-f224012e1bf5@behavox.com>
 Content-Type: multipart/mixed;
- boundary="------------C004738977FDDB6FC5F9B2DE"
+ boundary="------------F47B62A4F562A789B43E8B83"
 
 This is a multi-part message in MIME format.
---------------C004738977FDDB6FC5F9B2DE
+--------------F47B62A4F562A789B43E8B83
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
 
---------------C004738977FDDB6FC5F9B2DE
+--------------F47B62A4F562A789B43E8B83
 Content-Type: message/rfc822;
- name="Test 1.eml"
+ name="Test 3.eml"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="Test 1.eml"
+ filename="Test 3.eml"
 
 To: alx@behavox.com
 From: Alexander Alexeev <alexander.alexeev@behavox.com>
-Subject: Test 1
+Subject: Test 3
 Organization: Behavox, Ltd
-Message-ID: <70482884-cc4f-6dd2-d856-89715e9d3340@behavox.com>
-Date: Mon, 5 Jun 2017 09:31:47 +0300
+Message-ID: <9daf0b50-fe57-c75a-ef88-f224012e1bf5@behavox.com>
+Date: Mon, 5 Jun 2017 09:42:56 +0300
 User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101
  Thunderbird/45.8.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-This is first test message!
+This is third test message!
 
---------------C004738977FDDB6FC5F9B2DE--
+--------------F47B62A4F562A789B43E8B83--

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 class ExtractionPath {
 
-    private static final Logger log = LogManager.getLogger(ExtractMail.class);
+    private static final Logger log = LogManager.getLogger(ExtractionPath.class);
 
     private ArrayDeque<String> currentExtractionPath = new ArrayDeque<>();
 

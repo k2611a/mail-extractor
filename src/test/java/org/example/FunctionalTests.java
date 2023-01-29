@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,65 +28,95 @@ public class FunctionalTests {
 
     @Test
     public void providedExample() throws IOException {
-        runTest("provided-example", "archive.zip", Arrays.asList(FileType.ZIP, FileType.EML), false);
+        runTest(
+                "provided-example",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.EML),
+                false
+        );
     }
 
     @Test
     public void providedExampleSizeLimitNotEnough() throws IOException {
-        runTest("provided-example", "archive.zip", FileType.ZIP, true, "-l", "500");
+        runTest(
+                "provided-example",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.EML),
+                true,
+                "-l", "500"
+        );
     }
 
     @Test
     public void providedExampleSizeLimitEnough() throws IOException {
-        runTest("provided-example", "archive.zip", FileType.ZIP, false, "-l", "8000");
+        runTest(
+                "provided-example",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.EML),
+                false,
+                "-l", "8000"
+        );
     }
 
     @Test
     public void empty() throws IOException {
-        runTest("empty", "archive.zip", FileType.ZIP, false);
+        runTest(
+                "empty",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.EML),
+                false
+        );
     }
 
     @Test
     public void fileNotExistsArchive() throws IOException {
-        runTest("not-exists", "archive.zip", FileType.ZIP, true);
+        runTest(
+                "not-exists",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.EML),
+                true
+        );
     }
 
     @Test
     public void fileNotExistsEmail() throws IOException {
-        runTest("not-exists", "message.eml", FileType.EML, true);
+        runTest(
+                "not-exists",
+                "message.eml",
+                Arrays.asList(FileType.EML, FileType.EML),
+                true
+        );
     }
 
     @Test
     public void nestedZip() throws IOException {
-        runTest("nested-zip", "archive.zip", FileType.ZIP, false);
+        runTest(
+                "nested-zip",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.ZIP, FileType.EML, FileType.ZIP, FileType.EML, FileType.EML),
+                false
+        );
     }
 
     @Test
     public void emailWithMessages() throws IOException {
-        runTest("email-with-messages", "message.eml", FileType.EML, false);
+        runTest(
+                "email-with-messages",
+                "message.eml",
+                Arrays.asList(FileType.EML, FileType.ZIP, FileType.EML),
+                false
+        );
     }
 
     @Test
     public void nestedDirectory() throws IOException {
-        runTest("nested-directory", "archive.zip", FileType.ZIP, false);
-    }
-
-    private void runTest(
-            String testcasePath,
-            String filename,
-            FileType fileType,
-            boolean expectFailure,
-            String... additonalArgs
-    ) throws IOException {
         runTest(
-                testcasePath,
-                filename,
-                Collections.singletonList(fileType),
-                expectFailure,
-                additonalArgs
+                "nested-directory",
+                "archive.zip",
+                Arrays.asList(FileType.ZIP, FileType.EML),
+                false
         );
     }
-
 
     private void runTest(
             String testcasePath,
